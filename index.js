@@ -5,25 +5,39 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-let users = [];
-let tweets = [];
+const users = [];
+const tweets = [];
+let userBackup = {
+  username:"",
+  avatar:""
+}
 
 app.post("/sign-up", (request, response) => {
   const user = request.body;
   users.push(user);
-  response.status(201).send("OK");
-});
-
-app.get("/tweets", (request, response) => {
-  const tweet = request.body;
-  response.send(tweets);
+  userBackup.username = user.username;
+  userBackup.avatar = user.avatar;
+  response.send("OK");
 });
 
 app.post("/tweets", (request, response) => {
   const tweet = request.body;
-  tweets.push(tweet);
-  response.status(201).send("OK");
+
+  tweets.push({...userBackup, ...tweet});
+  response.send("OK");
 });
+
+app.get("/tweets", (request, response) => {
+  
+  if(tweets.length<=10){
+    response.send(tweets.reverse());
+  }else {
+    const tweetsReturn = tweets.slice(tweets.length-10, tweets.length);
+    response.send(tweetsReturn.reverse());
+  }
+
+});
+
 
 
 app.listen(5000, () => {
